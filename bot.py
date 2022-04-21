@@ -18,6 +18,11 @@ def findChannels(name:str):
     return chanlist
 
 
+#intents
+intents = discord.Intents()
+intents.members = True
+
+#events
 @client.event
 async def on_ready():
     print(f'{client.user} has connected to Discord!')
@@ -26,5 +31,8 @@ async def on_ready():
     for channel in general_list:
         await channel.send('I am now online!')
 
+@client.event
+async def on_member_join(member):
+    await member.send('{member.name}, welcome to the most sophisticated discord server in the universe.')
 
 client.run(TOKEN)
