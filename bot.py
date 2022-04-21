@@ -7,9 +7,12 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('GUILD_NAME')
 
+
 #intents
 intents = discord.Intents()
 intents.members = True
+
+client = discord.Client(intents=intents)
 
 def findChannels(name:str):
     chanlist = []
@@ -19,12 +22,6 @@ def findChannels(name:str):
                 chanlist.append(channel)
     return chanlist
 
-
-#intents
-intents = discord.Intents()
-intents.members = True
-
-client = discord.Client(intents=intents)
 
 #events
 @client.event
