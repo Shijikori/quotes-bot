@@ -22,6 +22,8 @@ def findChannels(name:str):
 intents = discord.Intents()
 intents.members = True
 
+client = discord.Client(intents=intents)
+
 #events
 @client.event
 async def on_ready():
@@ -33,6 +35,8 @@ async def on_ready():
 
 @client.event
 async def on_member_join(member):
-    await member.send('{member.name}, welcome to the most sophisticated discord server in the universe.')
+    print("yes i saw u joined")
+    print(member)
+    await member.send(f'{member.name}, welcome to the most sophisticated discord server in the universe.')
 
 client.run(TOKEN)
