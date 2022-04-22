@@ -34,8 +34,6 @@ async def on_ready():
 
 @client.event
 async def on_member_join(member):
-    print("yes i saw u joined")
-    print(member)
     await member.send(f'{member.name}, welcome to the most sophisticated discord server in the universe.')
 
 client.run(TOKEN)
