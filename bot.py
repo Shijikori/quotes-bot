@@ -1,11 +1,14 @@
 import os
 import discord
+import sqlite3
 from dotenv import load_dotenv
 
 load_dotenv()
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('GUILD_NAME')
+DATABASE = os.getenv('DB_FILE')
+
 
 
 #intents
@@ -14,6 +17,9 @@ intents.members = True
 intents.messages = True
 
 quotesChan = None
+
+#database connection
+db_con = sqlite3.connect(DATABASE)
 
 client = discord.Client(intents=intents)
 
@@ -37,6 +43,20 @@ def extractQuote(message:str):
             save = True
     return quote
 
+#function that creates a table for guild if guild is empty
+async def createGuildTable(guildid):
+    with db_con as conn:
+        cursor = conn.cursor()
+        cursor.execute(''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name=? ''', guildid)
+
+        if cursor.fetchone()[0] == 1:
+            conn.commit()
+            return
+        
+        cursor.execute(''' CREATE TABLE ? (userid text, quote text) ''')
+
+        conn.commit()
+
 #events
 @client.event
 async def on_ready():
@@ -44,7 +64,6 @@ async def on_ready():
     print(f'{client.user} has connected to Discord!')
     general_list = findChannels("general")
     quotesChan = findChannels("quotes")
-    print(f" {general_list} | {quotesChan}")
 
 
     for channel in general_list:
@@ -63,6 +82,6 @@ async def on_message(message):
     
     if message.channel.id == quotesChan[0].id:
         
-        print(f"{message.guild} | {message.mentions[0]} | {extractQuote(message.content)}")
+        print(f"{message.guild} | {message.mentions[0].id} | {extractQuote(message.content)}")
 
 client.run(TOKEN)
