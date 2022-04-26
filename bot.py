@@ -25,6 +25,18 @@ def findChannels(name:str):
                 chanlist.append(channel)
     return chanlist
 
+def extractQuote(message:str):
+    quote = ""
+    save = False
+    for i in range(0,len(message)):
+        if save and not message[i] == '\"':
+            quote += message[i]
+        if message[i] == '\"' and save:
+            break
+        if message[i] == '\"':
+            save = True
+    return quote
+
 #events
 @client.event
 async def on_ready():
@@ -45,23 +57,12 @@ async def on_member_join(member):
 @client.event
 async def on_message(message):
     global quotesChan
-    print("message received!")
     if message.author == client.user:
-        print("author is me!")
         return
-    print("author is not me!")
-    save = False
-    quote = ""
+
+    
     if message.channel.id == quotesChan[0].id:
-        print("message is a quote!")
-        for i in range(0,len(message.content)):
-            if save and not message.content[i] == '\"':
-                quote += message.content[i]
-            if message.content[i] == '\"' and save:
-                break
-            if message.content[i] == '\"':
-                save = True
-          
-        print(f"{message.guild} | {message.mentions[0]} | {quote}")
+        
+        print(f"{message.guild} | {message.mentions[0]} | {extractQuote(message.content)}")
 
 client.run(TOKEN)
