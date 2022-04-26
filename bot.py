@@ -35,7 +35,7 @@ def extractQuote(message:str):
     quote = ""
     save = False
     for i in range(0,len(message)):
-        if save and not message[i] == '\"':
+        if save and not (message[i] == '\"' or message[i] == '\\'):
             quote += message[i]
         if message[i] == '\"' and save:
             break
