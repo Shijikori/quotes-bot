@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+#environment vars
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('GUILD_NAME')
 DATABASE = os.getenv('DB_FILE')
@@ -14,12 +15,10 @@ intents = discord.Intents.default()
 intents.members = True
 intents.messages = True
 
+#globals
 client = discord.Client(intents=intents)
-
 quotesChan = None
-
-#database connection
-db_con = sqlite3.connect(DATABASE)
+db_con = None
 
 #finds all channels of the name name
 def findChannels(name:str):
@@ -90,4 +89,11 @@ async def on_message(message):
     if message.channel.id == quotesChan[0].id:
         await pushQuoteToDB(message.guild.id, message.mentions[0].id, extractQuote(message.content))
 
-client.run(TOKEN)
+#running client with keyboard interrupt handling
+try:
+    db_con = sqlite3.connect(DATABASE)
+    client.run(TOKEN)
+except KeyboardInterrupt:
+    db_con.commit()
+    db_con.close()
+exit(0)
