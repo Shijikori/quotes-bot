@@ -47,14 +47,21 @@ def extractQuote(message:str):
 async def createGuildTable(guildid):
     with db_con as conn:
         cursor = conn.cursor()
-        cursor.execute(''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name=? ''', guildid)
+        cursor.execute(f"SELECT count(name) FROM sqlite_master WHERE type='table' AND name=\'{guildid}\'")
 
         if cursor.fetchone()[0] == 1:
             conn.commit()
             return
         
-        cursor.execute(''' CREATE TABLE ? (userid text, quote text) ''')
+        cursor.execute(f" CREATE TABLE {guildid} (userid text, quote text) ")
 
+        conn.commit()
+
+#function that stores the quote on guildid table with userid of quoted user.
+async def pushQuoteToDB(guildid, userid, quote):
+    with db_con as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"INSERT INTO {guildid} VALUES (\"{userid}\", \"{quote}\")")
         conn.commit()
 
 #events
