@@ -44,7 +44,7 @@ def extractQuote(message:str):
     return quote
 
 #function that creates a table for guild if guild is empty
-async def createGuildTable(guildid):
+def createGuildTable(guildid):
     with db_con as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT count(name) FROM sqlite_master WHERE type='table' AND name=\'{guildid}\'")
@@ -58,7 +58,7 @@ async def createGuildTable(guildid):
         conn.commit()
 
 #function that stores the quote on guildid table with userid of quoted user.
-async def pushQuoteToDB(guildid, userid, quote):
+def pushQuoteToDB(guildid, userid, quote):
     with db_con as conn:
         cursor = conn.cursor()
         cursor.execute(f"INSERT INTO {guildid} VALUES (\"{userid}\", \"{quote}\")")
@@ -88,7 +88,6 @@ async def on_message(message):
 
     
     if message.channel.id == quotesChan[0].id:
-        
-        print(f"{message.guild} | {message.mentions[0].id} | {extractQuote(message.content)}")
+        await pushQuoteToDB(message.guild.id, message.mentions[0].id, extractQuote(message.content))
 
 client.run(TOKEN)
