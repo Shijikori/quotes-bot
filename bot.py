@@ -9,20 +9,19 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('GUILD_NAME')
 DATABASE = os.getenv('DB_FILE')
 
-
-
 #intents
 intents = discord.Intents.default()
 intents.members = True
 intents.messages = True
+
+client = discord.Client(intents=intents)
 
 quotesChan = None
 
 #database connection
 db_con = sqlite3.connect(DATABASE)
 
-client = discord.Client(intents=intents)
-
+#finds all channels of the name name
 def findChannels(name:str):
     chanlist = []
     for guild in client.guilds:
@@ -31,6 +30,7 @@ def findChannels(name:str):
                 chanlist.append(channel)
     return chanlist
 
+#extracts a quote from a message containing a quote
 def extractQuote(message:str):
     quote = ""
     save = False
