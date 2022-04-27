@@ -90,7 +90,7 @@ async def on_message(message):
 
     #if channel id is one of the quotes channels, push the quote to DB.
     if message.channel.id == quotesChan[0].id and message.mentions[0].id != client.user.id:
-        if len(message.mentions > 1):
+        if len(message.mentions) > 1:
             await pushQuoteToDB(message.guild.id, message.mentions[0].id, extractQuote(message.content))
         else:
             await message.channel.send("Missing mention of quoted user (@) after quote.")
