@@ -73,7 +73,7 @@ async def imp2met(ctx, measure):
         await ctx.send("Argument is not a number!")
         return
     metricmeasure = (measure*2.54)
-    response = f"{measure} inches is {metricmeasure} centimeters"
+    response = f"{measure} inches is about {metricmeasure:.3f} centimeters"
     await ctx.send(response)
 
 #metric to imperial conversion command
@@ -85,7 +85,7 @@ async def met2imp(ctx, measure):
         await ctx.send("Argument is not a number!")
         return
     imperialmeasure = (measure/2.54)
-    response = f"{measure} centimeters is  {imperialmeasure} inches"
+    response = f"{measure} centimeters is about {imperialmeasure:.3f} inches"
     await ctx.send(response)
 
 #query command
