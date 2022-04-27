@@ -64,6 +64,26 @@ def pushQuoteToDB(guildid, userid, quote):
         cursor.execute(f"INSERT INTO {guildid} VALUES (\"{userid}\", \"{quote}\")")
         conn.commit()
 
+#imperial to metric conversion command
+@client.command(name='imp2met', help='Converts inches to cms.')
+async def imp2met(ctx, measure):
+    print ("someone used this command")
+    metricmeasure = (measure*2.54)
+    response = (measure + ' is ' + metricmeasure + 'cm')
+    await ctx.send(response)
+
+#metric to imperial conversion command
+@client.command(name='met2imp', help='Converts cm to inches.')
+async def met2imp(ctx, measure):
+    imperialmeasure = (measure/2.54)
+    response = (measure + ' is ' + imperialmeasure + 'inches')
+    await ctx.send(response)
+
+#query command
+@client.command(name='query', help="Gets quote from mentionned user.")
+async def query(ctx, query):
+    print(f"query contents : {query}")
+
 #events
 @client.event
 async def on_ready():
@@ -98,27 +118,6 @@ async def on_message(message):
             await message.author.send("Missing mention of quoted user (@) after quote.")
     
     await client.process_commands(message)
-
-#imperial to metric conversion command
-@client.command(name='imp2met', help='Converts inches to cms.')
-async def imp2met(ctx, measure):
-    print ("someone used this command")
-    metricmeasure = (measure*2.54)
-    response = (measure + ' is ' + metricmeasure + 'cm')
-    await ctx.send(response)
-
-#metric to imperial conversion command
-@client.command(name='met2imp', help='Converts cm to inches.')
-async def met2imp(ctx, measure):
-    imperialmeasure = (measure/2.54)
-    response = (measure + ' is ' + imperialmeasure + 'inches')
-    await ctx.send(response)
-
-#query command
-@client.command(name='query', help="Gets quote from mentionned user.")
-async def query(ctx, query):
-    print(f"query contents : {query}")
-
     
 #running client with keyboard interrupt handling
 try:
