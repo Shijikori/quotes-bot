@@ -89,7 +89,7 @@ async def on_message(message):
         return
 
     #if channel id is one of the quotes channels, push the quote to DB.
-    if message.channel.id == quotesChan[0].id:
+    if message.channel.id == quotesChan[0].id and message.mentions[0].id != client.user.id:
         if len(message.mentions > 1):
             await pushQuoteToDB(message.guild.id, message.mentions[0].id, extractQuote(message.content))
         else:
