@@ -96,6 +96,8 @@ async def on_message(message):
                 await message.author.send(f"Your message in #{message.channel} in {message.guild} didn't include a quote.")
         else:
             await message.author.send("Missing mention of quoted user (@) after quote.")
+    
+    await client.process_commands(message)
 
 #imperial to metric conversion command
 @client.command(name='imp2met', help='Converts inches to cms.')
