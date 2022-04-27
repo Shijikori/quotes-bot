@@ -91,9 +91,13 @@ async def on_message(message):
     #if channel id is one of the quotes channels, push the quote to DB.
     if message.channel.id == quotesChan[0].id and message.mentions[0].id != client.user.id:
         if len(message.mentions) > 1:
-            await pushQuoteToDB(message.guild.id, message.mentions[0].id, extractQuote(message.content))
+            quote = extractQuote(message.content)
+            if len(quote) > 1:
+                await pushQuoteToDB(message.guild.id, message.mentions[0].id, quote)
+            else:
+                await message.author.send(f"Your message in #{message.channel} in {message.guild} didn't include a quote.")
         else:
-            await message.channel.send("Missing mention of quoted user (@) after quote.")
+            await message.author.send("Missing mention of quoted user (@) after quote.")
 
 #imperial to metric conversion command
 @bot.command(name='imp2met', help='Converts inches to cms.')
