@@ -49,13 +49,13 @@ def createGuildTable(guildid):
     global db_con
     with db_con as conn:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT count(name) FROM sqlite_master WHERE type='table' AND name=\'{guildid}\'")
+        cursor.execute(f"SELECT count(name) FROM sqlite_master WHERE type='table' AND name=\'s{guildid}\'")
 
         if cursor.fetchone()[0] == 1:
             conn.commit()
             return
         
-        cursor.execute(f" CREATE TABLE {guildid} (userid text, quote text) ")
+        cursor.execute(f" CREATE TABLE s{guildid} (userid text, quote text) ")
 
         conn.commit()
 
@@ -64,7 +64,8 @@ def pushQuoteToDB(guildid, userid, quote):
     global db_con
     with db_con as conn:
         cursor = conn.cursor()
-        cursor.execute(f"INSERT INTO {guildid} VALUES (\"{userid}\", \"{quote}\")")
+        print(f"guildid:{guildid}")
+        cursor.execute(f"INSERT INTO s{guildid} VALUES ('{userid}', '{quote}')")
         conn.commit()
 
 #function that queries the database for user's quotes.
@@ -73,8 +74,8 @@ def queryDB(guildid, userid):
     quotes = []
     with db_con as conn:
         cursor = conn.cursor()
-        for row in cursor.execute(f"SELECT quote FROM {guildid} WHERE userid=\"{userid}\""):
-            quotes.append(row)
+        for row in cursor.execute(f"SELECT quote FROM s{guildid} WHERE userid='{userid}'"):
+            quotes.append(row[0])
         conn.commit()
         return quotes
 
@@ -104,9 +105,9 @@ async def met2imp(ctx, measure):
 
 #query command
 @client.command(name='query', help="Gets quote from mentionned user.")
-async def query(ctx, query):
-    print(f"query contents : {query}")
-    quotes = queryDB(ctx.guild.id, query)
+async def query(ctx, query:discord.Member):
+    print(f"query contents : {query.id}")
+    quotes = queryDB(ctx.guild.id, query.id)
     await ctx.send(f"{query} once said \"{quotes[random.randrange(0, len(quotes))]}\"")
     if random.randrange(0,38) == 20:
         await ctx.send("Wise words to stand by.")
@@ -118,7 +119,8 @@ async def on_ready():
     print(f'{client.user} has connected to Discord!')
     general_list = findChannels("general")
     quotesChan = findChannels("quotes")
-
+    for guild in client.guilds:
+        createGuildTable(guild.id)
 
     for channel in general_list:
         await channel.send('I am now online!')
@@ -138,7 +140,7 @@ async def on_message(message):
         if len(message.mentions) > 0:
             quote = extractQuote(message.content)
             if len(quote) > 1:
-                await pushQuoteToDB(message.guild.id, message.mentions[0].id, quote)
+                pushQuoteToDB(message.guild.id, message.mentions[0].id, quote)
             else:
                 await message.author.send(f"Your message in #{message.channel} in {message.guild} didn't include a quote.")
         else:
