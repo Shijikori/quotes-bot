@@ -114,6 +114,11 @@ async def met2imp(ctx, measure):
 @bot.command(name='query', help="Gets quote from mentionned user.")
 async def query(ctx, query):
     print(f"query contents : {query}")
+
+#command additions
+bot.add_command(imp2met)
+bot.add_command(met2imp)
+bot.add_command(query)
     
 #running client with keyboard interrupt handling
 try:
