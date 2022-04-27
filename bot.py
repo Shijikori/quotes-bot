@@ -107,9 +107,9 @@ async def met2imp(ctx, measure):
 async def query(ctx, query:discord.Member):
     quotes = queryDB(ctx.guild.id, query.id)
     if len(quotes) == 0:
-        await ctx.send(f"{query.nick} never said anything remarkable :c")
+        await ctx.send(f"{query} never said anything remarkable :c")
     else:
-        await ctx.send(f"{query.nick} once said \"{quotes[random.randrange(0, len(quotes))]}\"")
+        await ctx.send(f"{query} once said \"{quotes[random.randrange(0, len(quotes))]}\"")
         if random.randrange(0,38) == 20:
             await ctx.send("Wise words to stand by.")
 
@@ -137,7 +137,7 @@ async def on_message(message):
         return
 
     #if channel id is one of the quotes channels, push the quote to DB.
-    if message.channel.id == quotesChan[0].id and message.mentions[0].id != client.user.id:
+    if message.channel.id == quotesChan[0].id:
         if len(message.mentions) > 0:
             quote = extractQuote(message.content)
             if len(quote) > 1:
