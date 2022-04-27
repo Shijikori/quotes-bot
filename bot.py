@@ -11,15 +11,13 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('GUILD_NAME')
 DATABASE = os.getenv('DB_FILE')
 
-bot = commands.Bot(command_prefix='!')
-
 #intents
 intents = discord.Intents.default()
 intents.members = True
 intents.messages = True
 
 #globals
-client = discord.Client(intents=intents)
+client = commands.Bot(command_prefix='!', intents=intents)
 quotesChan = None
 db_con = None
 
@@ -100,7 +98,7 @@ async def on_message(message):
             await message.author.send("Missing mention of quoted user (@) after quote.")
 
 #imperial to metric conversion command
-@bot.command(name='imp2met', help='Converts inches to cms.')
+@client.command(name='imp2met', help='Converts inches to cms.')
 async def imp2met(ctx, measure):
     print ("someone used this command")
     metricmeasure = (measure*2.54)
@@ -108,21 +106,17 @@ async def imp2met(ctx, measure):
     await ctx.send(response)
 
 #metric to imperial conversion command
-@bot.command(name='met2imp', help='Converts cm to inches.')
+@client.command(name='met2imp', help='Converts cm to inches.')
 async def met2imp(ctx, measure):
     imperialmeasure = (measure/2.54)
     response = (measure + ' is ' + imperialmeasure + 'inches')
     await ctx.send(response)
 
 #query command
-@bot.command(name='query', help="Gets quote from mentionned user.")
+@client.command(name='query', help="Gets quote from mentionned user.")
 async def query(ctx, query):
     print(f"query contents : {query}")
 
-#command additions
-bot.add_command(imp2met)
-bot.add_command(met2imp)
-bot.add_command(query)
     
 #running client with keyboard interrupt handling
 try:
