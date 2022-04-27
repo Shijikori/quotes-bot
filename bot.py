@@ -107,9 +107,9 @@ async def met2imp(ctx, measure):
 async def query(ctx, query:discord.Member):
     quotes = queryDB(ctx.guild.id, query.id)
     if len(quotes) == 0:
-        await ctx.send(f"{query.nick} never said anything remarkable :c")
+        await ctx.send(f"{query} never said anything remarkable :c")
     else:
-        await ctx.send(f"{query.nick} once said \"{quotes[random.randrange(0, len(quotes))]}\"")
+        await ctx.send(f"{query} once said \"{quotes[random.randrange(0, len(quotes))]}\"")
         if random.randrange(0,38) == 20:
             await ctx.send("Wise words to stand by.")
 
