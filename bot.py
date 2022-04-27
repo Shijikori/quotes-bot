@@ -1,6 +1,7 @@
 import os
 import discord
 import sqlite3
+import random
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -105,6 +106,10 @@ async def met2imp(ctx, measure):
 @client.command(name='query', help="Gets quote from mentionned user.")
 async def query(ctx, query):
     print(f"query contents : {query}")
+    quotes = queryDB(ctx.guild.id, query)
+    await ctx.send(f"{query} once said \"{quotes[random.randrange(0, len(quotes))]}\"")
+    if random.randrange(0,38) == 20:
+        await ctx.send("Wise words to stand by.")
 
 #events
 @client.event
@@ -130,7 +135,7 @@ async def on_message(message):
 
     #if channel id is one of the quotes channels, push the quote to DB.
     if message.channel.id == quotesChan[0].id and message.mentions[0].id != client.user.id:
-        if len(message.mentions) > 1:
+        if len(message.mentions) > 0:
             quote = extractQuote(message.content)
             if len(quote) > 1:
                 await pushQuoteToDB(message.guild.id, message.mentions[0].id, quote)
