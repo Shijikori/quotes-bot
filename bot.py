@@ -69,9 +69,13 @@ def pushQuoteToDB(guildid, userid, quote):
 #function that queries the database for user's quotes.
 def queryDB(guildid, userid):
     global db_con
+    quotes = []
     with db_con as conn:
-        pass
-        
+        cursor = conn.cursor()
+        for row in cursor.execute(f"SELECT quote FROM {guildid} WHERE userid=\"{userid}\""):
+            quotes.append(row)
+        conn.commit()
+        return quotes
 
 #imperial to metric conversion command
 @client.command(name='imp2met', help='Converts inches to cms.')
