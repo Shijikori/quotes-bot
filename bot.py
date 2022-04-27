@@ -1,6 +1,7 @@
 import os
 import discord
 import sqlite3
+import random
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -11,15 +12,13 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('GUILD_NAME')
 DATABASE = os.getenv('DB_FILE')
 
-bot = commands.Bot(command_prefix='!')
-
 #intents
 intents = discord.Intents.default()
 intents.members = True
 intents.messages = True
 
 #globals
-client = discord.Client(intents=intents)
+client = commands.Bot(command_prefix='!', intents=intents)
 quotesChan = None
 db_con = None
 
@@ -47,24 +46,72 @@ def extractQuote(message:str):
 
 #function that creates a table for guild if guild is empty
 def createGuildTable(guildid):
+    global db_con
     with db_con as conn:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT count(name) FROM sqlite_master WHERE type='table' AND name=\'{guildid}\'")
+        cursor.execute(f"SELECT count(name) FROM sqlite_master WHERE type='table' AND name=\'s{guildid}\'")
 
         if cursor.fetchone()[0] == 1:
             conn.commit()
             return
         
-        cursor.execute(f" CREATE TABLE {guildid} (userid text, quote text) ")
+        cursor.execute(f" CREATE TABLE s{guildid} (userid text, quote text) ")
 
         conn.commit()
 
 #function that stores the quote on guildid table with userid of quoted user.
 def pushQuoteToDB(guildid, userid, quote):
+    global db_con
     with db_con as conn:
         cursor = conn.cursor()
-        cursor.execute(f"INSERT INTO {guildid} VALUES (\"{userid}\", \"{quote}\")")
+        cursor.execute(f"INSERT INTO s{guildid} VALUES ('{userid}', '{quote}')")
         conn.commit()
+
+#function that queries the database for user's quotes.
+def queryDB(guildid, userid):
+    global db_con
+    quotes = []
+    with db_con as conn:
+        cursor = conn.cursor()
+        for row in cursor.execute(f"SELECT quote FROM s{guildid} WHERE userid='{userid}'"):
+            quotes.append(row[0])
+        conn.commit()
+        return quotes
+
+#imperial to metric conversion command
+@client.command(name='imp2met', help='Converts inches to cms.')
+async def imp2met(ctx, measure):
+    try:
+        measure = float(measure)
+    except ValueError:
+        await ctx.send("Argument is not a number!")
+        return
+    metricmeasure = (measure*2.54)
+    response = f"{measure} inches is about {metricmeasure:.3f} centimeters"
+    await ctx.send(response)
+
+#metric to imperial conversion command
+@client.command(name='met2imp', help='Converts cm to inches.')
+async def met2imp(ctx, measure):
+    try:
+        measure = float(measure)
+    except ValueError:
+        await ctx.send("Argument is not a number!")
+        return
+    imperialmeasure = (measure/2.54)
+    response = f"{measure} centimeters is about {imperialmeasure:.3f} inches"
+    await ctx.send(response)
+
+#query command
+@client.command(name='query', help="Gets quote from mentionned user.")
+async def query(ctx, query:discord.Member):
+    quotes = queryDB(ctx.guild.id, query.id)
+    if len(quotes) == 0:
+        await ctx.send(f"{query.nick} never said anything remarkable :c")
+    else:
+        await ctx.send(f"{query.nick} once said \"{quotes[random.randrange(0, len(quotes))]}\"")
+        if random.randrange(0,38) == 20:
+            await ctx.send("Wise words to stand by.")
 
 #events
 @client.event
@@ -73,7 +120,8 @@ async def on_ready():
     print(f'{client.user} has connected to Discord!')
     general_list = findChannels("general")
     quotesChan = findChannels("quotes")
-
+    for guild in client.guilds:
+        createGuildTable(guild.id)
 
     for channel in general_list:
         await channel.send('I am now online!')
@@ -88,23 +136,19 @@ async def on_message(message):
     if message.author == client.user:
         return
 
+    #if channel id is one of the quotes channels, push the quote to DB.
+    if message.channel.id == quotesChan[0].id and message.mentions[0].id != client.user.id:
+        if len(message.mentions) > 0:
+            quote = extractQuote(message.content)
+            if len(quote) > 1:
+                pushQuoteToDB(message.guild.id, message.mentions[0].id, quote)
+            else:
+                await message.author.send(f"Your message in #{message.channel} in {message.guild} didn't include a quote.")
+        else:
+            await message.author.send("Missing mention of quoted user (@) after quote.")
     
-    if message.channel.id == quotesChan[0].id:
-        await pushQuoteToDB(message.guild.id, message.mentions[0].id, extractQuote(message.content))
-
-@bot.command(name='imp2met', help='Converts inches to cms.')
-async def imp2met(ctx, measure):
-    print ("someone used this command")
-    metricmeasure = (measure*2.54)
-    response = (measure + ' is ' + metricmeasure + 'cm')
-    await ctx.send(response)
-
-@bot.command(name='met2imp', help='Converts cm to inches.')
-async def met2imp(ctx, measure):
-    imperialmeasure = (measure/2.54)
-    response = (measure + ' is ' + imperialmeasure + 'inches')
-    await ctx.send(response)
-        
+    await client.process_commands(message)
+    
 #running client with keyboard interrupt handling
 try:
     db_con = sqlite3.connect(DATABASE)
