@@ -107,7 +107,11 @@ async def met2imp(ctx, measure):
     imperialmeasure = (measure/2.54)
     response = (measure + ' is ' + imperialmeasure + 'inches')
     await ctx.send(response)
-        
+
+@bot.command(name='query', help="Gets quote from mentionned user.")
+async def query(ctx, query):
+    print(f"query contents : {query}")
+    
 #running client with keyboard interrupt handling
 try:
     db_con = sqlite3.connect(DATABASE)
