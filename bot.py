@@ -67,7 +67,11 @@ def pushQuoteToDB(guildid, userid, quote):
 #imperial to metric conversion command
 @client.command(name='imp2met', help='Converts inches to cms.')
 async def imp2met(ctx, measure):
-    print ("someone used this command")
+    try:
+        measure = float(measure)
+    except ValueError:
+        await ctx.send("Argument is not a number!")
+        return
     metricmeasure = (measure*2.54)
     response = (measure + ' is ' + metricmeasure + 'cm')
     await ctx.send(response)
@@ -75,6 +79,11 @@ async def imp2met(ctx, measure):
 #metric to imperial conversion command
 @client.command(name='met2imp', help='Converts cm to inches.')
 async def met2imp(ctx, measure):
+    try:
+        measure = float(measure)
+    except ValueError:
+        await ctx.send("Argument is not a number!")
+        return
     imperialmeasure = (measure/2.54)
     response = (measure + ' is ' + imperialmeasure + 'inches')
     await ctx.send(response)
