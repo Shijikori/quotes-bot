@@ -95,6 +95,7 @@ async def on_message(message):
         else:
             await message.channel.send("Missing mention of quoted user (@) after quote.")
 
+#imperial to metric conversion command
 @bot.command(name='imp2met', help='Converts inches to cms.')
 async def imp2met(ctx, measure):
     print ("someone used this command")
@@ -102,12 +103,14 @@ async def imp2met(ctx, measure):
     response = (measure + ' is ' + metricmeasure + 'cm')
     await ctx.send(response)
 
+#metric to imperial conversion command
 @bot.command(name='met2imp', help='Converts cm to inches.')
 async def met2imp(ctx, measure):
     imperialmeasure = (measure/2.54)
     response = (measure + ' is ' + imperialmeasure + 'inches')
     await ctx.send(response)
 
+#query command
 @bot.command(name='query', help="Gets quote from mentionned user.")
 async def query(ctx, query):
     print(f"query contents : {query}")
