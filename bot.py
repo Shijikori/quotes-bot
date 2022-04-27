@@ -45,6 +45,7 @@ def extractQuote(message:str):
 
 #function that creates a table for guild if guild is empty
 def createGuildTable(guildid):
+    global db_con
     with db_con as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT count(name) FROM sqlite_master WHERE type='table' AND name=\'{guildid}\'")
@@ -59,10 +60,18 @@ def createGuildTable(guildid):
 
 #function that stores the quote on guildid table with userid of quoted user.
 def pushQuoteToDB(guildid, userid, quote):
+    global db_con
     with db_con as conn:
         cursor = conn.cursor()
         cursor.execute(f"INSERT INTO {guildid} VALUES (\"{userid}\", \"{quote}\")")
         conn.commit()
+
+#function that queries the database for user's quotes.
+def queryDB(guildid, userid):
+    global db_con
+    with db_con as conn:
+        pass
+        
 
 #imperial to metric conversion command
 @client.command(name='imp2met', help='Converts inches to cms.')
