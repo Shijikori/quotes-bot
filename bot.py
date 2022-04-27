@@ -64,7 +64,6 @@ def pushQuoteToDB(guildid, userid, quote):
     global db_con
     with db_con as conn:
         cursor = conn.cursor()
-        print(f"guildid:{guildid}")
         cursor.execute(f"INSERT INTO s{guildid} VALUES ('{userid}', '{quote}')")
         conn.commit()
 
