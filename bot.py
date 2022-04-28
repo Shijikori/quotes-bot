@@ -9,7 +9,6 @@ load_dotenv()
 
 #environment vars
 TOKEN = os.getenv('DISCORD_TOKEN')
-GUILD = os.getenv('GUILD_NAME')
 DATABASE = os.getenv('DB_FILE')
 
 #intents
