@@ -46,7 +46,7 @@ Create a `#quotes` channel in your Discord server for it to start listening for 
 
 ## Planned features and development
 
-* [ ] Remove unecessary code
+* [X] Remove unecessary code
 * [ ] Query quotes with keywords (with and without provided user)
 * [ ] Designate a quotes channel using a command
 * [ ] MySQL version (uncertain)
