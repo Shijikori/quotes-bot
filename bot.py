@@ -78,7 +78,7 @@ def queryDB(guildid, userid):
         return quotes
 
 #query command
-@client.command(name='query', help="Gets quote from mentionned user.")
+@client.command(name='query', help="Gets a quote from mentionned user.")
 async def query(ctx, query:discord.Member):
     quotes = queryDB(ctx.guild.id, query.id)
     if len(quotes) == 0:
@@ -87,6 +87,15 @@ async def query(ctx, query:discord.Member):
         await ctx.send(f"{query} once said \"{quotes[random.randrange(0, len(quotes))]}\"")
         if random.randrange(0,38) == 20:
             await ctx.send("Wise words to stand by.")
+
+#command that purges all quotes in the database that comes from specified user.
+@client.command(nome='purge', help="Purges all of a user's quotes from the database.")
+async def purge(ctx, user:discord.Member):
+    global db_con
+    with db_con as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"DELETE FROM s{ctx.guild.id} WHERE userid='{user.id}'")
+        conn.commit()
 
 #events
 @client.event
