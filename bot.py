@@ -97,6 +97,11 @@ async def purge(ctx, user:discord.Member):
         cursor.execute(f"DELETE FROM s{ctx.guild.id} WHERE userid='{user.id}'")
         conn.commit()
 
+#command to create a database table for the context guild.
+@client.command(name='createdb', help="Creates the database table for the guild.")
+async def createDB(ctx):
+    createGuildTable(ctx.guild.id)
+
 #events
 @client.event
 async def on_ready():
