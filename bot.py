@@ -9,7 +9,6 @@ load_dotenv()
 
 #environment vars
 TOKEN = os.getenv('DISCORD_TOKEN')
-GUILD = os.getenv('GUILD_NAME')
 DATABASE = os.getenv('DB_FILE')
 
 #intents
@@ -78,32 +77,8 @@ def queryDB(guildid, userid):
         conn.commit()
         return quotes
 
-#imperial to metric conversion command
-@client.command(name='imp2met', help='Converts inches to cms.')
-async def imp2met(ctx, measure):
-    try:
-        measure = float(measure)
-    except ValueError:
-        await ctx.send("Argument is not a number!")
-        return
-    metricmeasure = (measure*2.54)
-    response = f"{measure} inches is about {metricmeasure:.3f} centimeters"
-    await ctx.send(response)
-
-#metric to imperial conversion command
-@client.command(name='met2imp', help='Converts cm to inches.')
-async def met2imp(ctx, measure):
-    try:
-        measure = float(measure)
-    except ValueError:
-        await ctx.send("Argument is not a number!")
-        return
-    imperialmeasure = (measure/2.54)
-    response = f"{measure} centimeters is about {imperialmeasure:.3f} inches"
-    await ctx.send(response)
-
 #query command
-@client.command(name='query', help="Gets quote from mentionned user.")
+@client.command(name='query', help="Gets a quote from mentionned user.")
 async def query(ctx, query:discord.Member):
     quotes = queryDB(ctx.guild.id, query.id)
     if len(quotes) == 0:
@@ -113,22 +88,23 @@ async def query(ctx, query:discord.Member):
         if random.randrange(0,38) == 20:
             await ctx.send("Wise words to stand by.")
 
+#command that purges all quotes in the database that comes from specified user.
+@client.command(nome='purge', help="Purges all of a user's quotes from the database.")
+async def purge(ctx, user:discord.Member):
+    global db_con
+    with db_con as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"DELETE FROM s{ctx.guild.id} WHERE userid='{user.id}'")
+        conn.commit()
+
 #events
 @client.event
 async def on_ready():
     global quotesChan
     print(f'{client.user} has connected to Discord!')
-    general_list = findChannels("general")
     quotesChan = findChannels("quotes")
     for guild in client.guilds:
         createGuildTable(guild.id)
-
-    for channel in general_list:
-        await channel.send('I am now online!')
-
-@client.event
-async def on_member_join(member):
-    await member.send(f'{member.name}, welcome to the most sophisticated discord server in the universe.')
 
 @client.event
 async def on_message(message):

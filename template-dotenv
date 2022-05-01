@@ -1,0 +1,3 @@
+#.env
+DISCORD_TOKEN="insert your bot's Discord token here"
+DB_FILE="insert database filename.db"
