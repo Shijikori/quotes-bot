@@ -89,7 +89,7 @@ async def query(ctx, query:discord.Member):
             await ctx.send("Wise words to stand by.")
 
 #command that purges all quotes in the database that comes from specified user.
-@client.command(nome='purge', help="Purges all of a user's quotes from the database.")
+@client.command(name='purge', help="Purges all of a user's quotes from the database.")
 async def purge(ctx, user:discord.Member):
     global db_con
     with db_con as conn:
