@@ -1,7 +1,7 @@
 # Quotes Bot
 A Discord bot for your funny quotes!
 
-This bot monitors a `#quotes` channel on the Discord server it is member. It is meant to be easily deployable so anyone can launch their own Quotes Bot for their community and manage the SQLite database however they want.
+This bot monitors registered channels on the Discord servers it is a member of. It is meant to be easily deployable so anyone can launch their own Quotes Bot for their community and manage the SQLite database however they want.
 
 ## Data Collection Informations
 If you use or consider using this bot, here are the data collection informations you need to know.
@@ -41,13 +41,26 @@ The first command activates the venv. The following command launches the python 
 
 ## General bot usage
 
-Create a `#quotes` channel in your Discord server for it to start listening for quotes. (This is subject to change with future features)
+The bot will add every missing tables for guilds it is a part of on startup. However if you add the bot to your server while it is running, you can run the `!createdb` command to create a table for your guild in the database.
+
+The next next step is to register your quotes channel. To do this, use the `!register` command in the channel the bot should be monitoring for quotes.
+
+If you would like to unregister the channel, simply use the command `!unregister` in the channel.
+
+No channels are registered by default.
+
+The valid quote for Quotes Bot matches the following : `"[Quote here]" @quoted-user`
+
+Anything can be added after the double quotes and will not be stored in the database. A mention of the quoted user is required, if no user is mentionned, the quote will not be stored. Multiple users may be mentionned, however, only the first user mentionned will have the quote attributed to them.
+
+To query a quote, use the `!query` followed by a username. It may be a mention, simply a username or username with # tag. The bot will then fetch a random quote attributed to the provided username from the database and quote them in the same channel.
 
 
 ## Planned features and development
 
 * [X] Remove unecessary code
 * [ ] Query quotes with keywords (with and without provided user)
+* [ ] Read and store the contents of past messages in registered channels
 * [X] Designate a quotes channel using a command
 * [ ] MySQL version (uncertain)
 
