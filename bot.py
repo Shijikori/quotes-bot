@@ -112,7 +112,7 @@ async def register(ctx):
         cursor = conn.cursor()
         cursor.execute(f"SELECT count(chanid) FROM channels WHERE chanid=\'{ctx.channel.id}\'")
         if cursor.fetchone() == 0:
-            cursor.execute(f"INSERT INTO channels VALUES (\'{ctx.channel.id}\')")
+            cursor.execute(f"INSERT INTO channels VALUES (\'{ctx.guild.id}\',\'{ctx.channel.id}\')")
         conn.commit()
 
 #command to unregister a quotes channel
@@ -158,7 +158,7 @@ try:
     cursor = db_con.cursor()
     cursor.execute(f"SELECT count(name) FROM sqlite_master WHERE type='table' AND name='channels'")
     if cursor.fetchone()[0] == 0:
-        cursor.execute(f" CREATE TABLE channels (chanid text) ")
+        cursor.execute(f" CREATE TABLE channels (guildid text, chanid text) ")
     
     db_con.commit()
     
