@@ -21,13 +21,15 @@ client = commands.Bot(command_prefix='!', intents=intents)
 quotesChan = None
 db_con = None
 
-#finds all channels of the name name
-def findChannels(name:str):
+#function that outputs the contents of the channels table
+def getChannelsDB():
+    global db_con
     chanlist = []
-    for guild in client.guilds:
-        for channel in guild.text_channels:
-            if channel.name == name:
-                chanlist.append(channel)
+    with db_con as conn:
+        cursor = conn.cursor()
+        for row in cursor.execute("SELECT chanid FROM channels"):
+            chanlist.append(row)
+        conn.commit()
     return chanlist
 
 #extracts a quote from a message containing a quote
@@ -102,12 +104,32 @@ async def purge(ctx, user:discord.Member):
 async def createDB(ctx):
     createGuildTable(ctx.guild.id)
 
+#command to register the quotes channel.
+@client.command(name='register', help="Registers current channel as quotes channel for the current guild.")
+async def register(ctx):
+    global db_con
+    with db_con as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT count(chanid) FROM channels WHERE chanid=\'{ctx.channel.id}\'")
+        if cursor.fetchone() == 0:
+            cursor.execute(f"INSERT INTO channels VALUES (\'{ctx.channel.id}\')")
+        conn.commit()
+
+#command to unregister a quotes channel
+@client.command(name='unregister', help="Unregister the current channel from the quotes channels.")
+async def unregister(ctx):
+    global db_con
+    with db_con as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"DELETE FROM channels WHERE chanid=\'{ctx.channel.id}\'")
+        conn.commit()
+
 #events
 @client.event
 async def on_ready():
     global quotesChan
     print(f'{client.user} has connected to Discord!')
-    quotesChan = findChannels("quotes")
+    quotesChan = getChannelsDB()
     for guild in client.guilds:
         createGuildTable(guild.id)
 
@@ -118,7 +140,7 @@ async def on_message(message):
         return
 
     #if channel id is one of the quotes channels, push the quote to DB.
-    if message.channel.id == quotesChan[0].id:
+    if f"{message.channel.id}" in quotesChan:
         if len(message.mentions) > 0:
             quote = extractQuote(message.content)
             if len(quote) > 1:
@@ -133,6 +155,13 @@ async def on_message(message):
 #running client with keyboard interrupt handling
 try:
     db_con = sqlite3.connect(DATABASE)
+    cursor = db_con.cursor()
+    cursor.execute(f"SELECT count(name) FROM sqlite_master WHERE type='table' AND name='channels'")
+    if cursor.fetchone()[0] == 0:
+        cursor.execute(f" CREATE TABLE channels (chanid text) ")
+    
+    db_con.commit()
+    
     client.run(TOKEN)
 except KeyboardInterrupt:
     db_con.commit()

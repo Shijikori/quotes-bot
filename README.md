@@ -6,7 +6,7 @@ This bot monitors a `#quotes` channel on the Discord server it is member. It is 
 ## Data Collection Informations
 If you use or consider using this bot, here are the data collection informations you need to know.
 
-This bot will collect data from a pre-determined "quotes" channel. Any messages posted in the channel will be processed. The data (the quote) is only stored if it meets the correct format. If it doesn't meet the expected format, the quote is not stored in the bot's database. In the database, each server has a table created with it's guild ID prefixed with `s`. The quotes are stored with the mentionned user ID of the user supposedly being quoted inside the table of the Discord server the message has been posted.
+This bot will collect data from a designated "quotes" channel. Any messages posted in the channel will be processed. The data (the quote) is only stored if it meets the correct format. If it doesn't meet the expected format, the quote is not stored in the bot's local database. In the database, each server has a table created with it's guild ID prefixed with `s`. The quotes are stored with the mentionned user ID of the user supposedly being quoted inside the table of the Discord server the message has been posted.
 
 Handling of the data in the database collected by the bot is to the responsibility of whoever is hosting an instance of this bot. I am not responsible for any mishandling of the data collected by this code.
 
@@ -48,7 +48,7 @@ Create a `#quotes` channel in your Discord server for it to start listening for 
 
 * [X] Remove unecessary code
 * [ ] Query quotes with keywords (with and without provided user)
-* [ ] Designate a quotes channel using a command
+* [X] Designate a quotes channel using a command
 * [ ] MySQL version (uncertain)
 
 ### Thanks to GitHub user gabrielb-l for working with me on the first version of this project!
