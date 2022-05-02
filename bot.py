@@ -28,7 +28,7 @@ def getChannelsDB():
     with db_con as conn:
         cursor = conn.cursor()
         for row in cursor.execute("SELECT chanid FROM channels"):
-            chanlist.append(row)
+            chanlist.append(row[0])
         conn.commit()
     return chanlist
 
@@ -56,7 +56,7 @@ def createGuildTable(guildid):
             conn.commit()
             return
         
-        cursor.execute(f" CREATE TABLE s{guildid} (userid text, quote text) ")
+        cursor.execute(f" CREATE TABLE s{guildid} (userid integer, quote text) ")
 
         conn.commit()
 
@@ -74,7 +74,7 @@ def queryDB(guildid, userid):
     quotes = []
     with db_con as conn:
         cursor = conn.cursor()
-        for row in cursor.execute(f"SELECT quote FROM s{guildid} WHERE userid='{userid}'"):
+        for row in cursor.execute(f"SELECT quote FROM s{guildid} WHERE userid={userid}"):
             quotes.append(row[0])
         conn.commit()
         return quotes
@@ -110,9 +110,9 @@ async def register(ctx):
     global db_con
     with db_con as conn:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT count(chanid) FROM channels WHERE chanid=\'{ctx.channel.id}\'")
-        if cursor.fetchone() == 0:
-            cursor.execute(f"INSERT INTO channels VALUES (\'{ctx.guild.id}\',\'{ctx.channel.id}\')")
+        cursor.execute(f"SELECT count(chanid) FROM channels WHERE chanid={ctx.channel.id}")
+        if cursor.fetchone()[0] == 0:
+            cursor.execute(f"INSERT INTO channels VALUES ({ctx.guild.id},{ctx.channel.id})")
         conn.commit()
 
 #command to unregister a quotes channel
@@ -121,7 +121,7 @@ async def unregister(ctx):
     global db_con
     with db_con as conn:
         cursor = conn.cursor()
-        cursor.execute(f"DELETE FROM channels WHERE chanid=\'{ctx.channel.id}\'")
+        cursor.execute(f"DELETE FROM channels WHERE chanid={ctx.channel.id}")
         conn.commit()
 
 #events
@@ -140,7 +140,7 @@ async def on_message(message):
         return
 
     #if channel id is one of the quotes channels, push the quote to DB.
-    if f"{message.channel.id}" in quotesChan:
+    if message.channel.id in quotesChan:
         if len(message.mentions) > 0:
             quote = extractQuote(message.content)
             if len(quote) > 1:
@@ -158,12 +158,12 @@ try:
     cursor = db_con.cursor()
     cursor.execute(f"SELECT count(name) FROM sqlite_master WHERE type='table' AND name='channels'")
     if cursor.fetchone()[0] == 0:
-        cursor.execute(f" CREATE TABLE channels (guildid text, chanid text) ")
-    
+        cursor.execute(f" CREATE TABLE channels (guildid integer, chanid integer) ")
+
     db_con.commit()
-    
+    cursor = None
     client.run(TOKEN)
-except KeyboardInterrupt:
+finally:
     db_con.commit()
     db_con.close()
 exit(0)
