@@ -79,7 +79,7 @@ def deleteGuildTable(guildid):
     global db_con
     with db_con as conn:
         cursor = conn.cursor()
-        cursor.execute(f"DELETE TABLE IF EXISTS s{guildid}")
+        cursor.execute(f"DROP TABLE IF EXISTS s{guildid}")
         conn.commit()
 
 #query command
@@ -140,6 +140,16 @@ async def readall(ctx):
                 if len(quote) > 1 and len(msg.mentions) > 0:
                     pushQuoteToDB(msg.guild.id, msg.mentions[0].id, quote)
     await ctx.author.send(f"Quotes from the last 150 messages from {ctx.channel.name} in {ctx.guild.name} have been read and stored")
+
+#command to delete a guild's database entries
+@client.command(name='deletedb', help="Deletes the database contents of this server. (does not create a blank table for the guild afterwards)")
+async def deleteDB(ctx):
+    global db_con
+    with db_con as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"DELETE FROM channels WHERE guildid={ctx.guild.id}")
+        conn.commit()
+    deleteGuildTable(ctx.guild.id)
 
 #events
 @client.event
