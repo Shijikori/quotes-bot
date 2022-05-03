@@ -79,6 +79,13 @@ def queryDB(guildid, userid):
         conn.commit()
         return quotes
 
+def deleteTable(guildid):
+    global db_con
+    with db_con as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"DELETE TABLE IF EXISTS s{guildid}")
+        conn.commit()
+
 #query command
 @client.command(name='query', help="Gets a quote from mentionned user.")
 async def query(ctx, query:discord.Member):
@@ -123,6 +130,20 @@ async def unregister(ctx):
         cursor = conn.cursor()
         cursor.execute(f"DELETE FROM channels WHERE chanid={ctx.channel.id}")
         conn.commit()
+
+#command to store all quotes from the quotes channel
+@client.command(name='readall', help="Reads and stores all quotes from the quotes channels.")
+async def readall(ctx):
+    global quotesChan
+    deleteTable(ctx.guild.id)
+    createGuildTable(ctx.guild.id)
+    if ctx.channel.id in quotesChan:
+        async for msg in ctx.channel.history(limit=150):
+            if msg.author != client.user:
+                quote = extractQuote(msg.content)
+                if len(quote) > 1 and len(msg.mentions) > 0:
+                    pushQuoteToDB(msg.guild.id, msg.mentions[0].id, quote)
+
 
 #events
 @client.event
