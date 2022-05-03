@@ -60,7 +60,7 @@ def pushQuoteToDB(guildid, userid, quote):
     global db_con
     with db_con as conn:
         cursor = conn.cursor()
-        cursor.execute(f"INSERT INTO s{guildid} VALUES ({userid}, '{quote}')")
+        cursor.execute(f"INSERT INTO s{guildid} VALUES ({userid}, \"{quote}\")")
         conn.commit()
 
 #function that queries the database for user's quotes.
@@ -95,6 +95,7 @@ async def query(ctx, query:discord.Member):
 
 #command that purges all quotes in the database that comes from specified user.
 @client.command(name='purge', help="Purges all of a user's quotes from the database.")
+@commands.has_permissions(manage_messages=True)
 async def purge(ctx, user:discord.Member):
     global db_con
     with db_con as conn:
