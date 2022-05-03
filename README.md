@@ -55,12 +55,17 @@ Anything can be added after the double quotes and will not be stored in the data
 
 To query a quote, use the `!query` followed by a username. It may be a mention, simply a username or username with # tag. The bot will then fetch a random quote attributed to the provided username from the database and quote them in the same channel.
 
+You can store the quotes from the last 150 messages in a registered channel by using the command `!readall` in the channel.
+
+A user's quotes can be deleted from the database using the command `!purge` with a username specified.
+
+If you wish to delete your server's database, you can use the command `!deletedb`. If you remove the bot from your server, no database table will be created for it on bot startup. This command also unregisters your registered channels, therefor, the bot will stop monitoring your server.
 
 ## Planned features and development
 
 * [X] Remove unecessary code
 * [ ] Query quotes with keywords (with and without provided user)
-* [ ] Read and store the contents of past messages in registered channels
+* [X] Read and store the contents of past messages in registered channels
 * [X] Designate a quotes channel using a command
 * [ ] MySQL version (uncertain)
 
