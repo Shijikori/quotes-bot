@@ -41,25 +41,7 @@ The first command activates the venv. The following command launches the python 
 
 ## General bot usage
 
-The bot will add every missing tables for guilds it is a part of on startup. However if you add the bot to your server while it is running, you can run the `!createdb` command to create a table for your guild in the database.
-
-The next next step is to register your quotes channel. To do this, use the `!register` command in the channel the bot should be monitoring for quotes.
-
-If you would like to unregister the channel, simply use the command `!unregister` in the channel.
-
-No channels are registered by default.
-
-The valid quote for Quotes Bot matches the following : `"[Quote here]" @quoted-user`
-
-Anything can be added after the double quotes and will not be stored in the database. A mention of the quoted user is required, if no user is mentionned, the quote will not be stored. Multiple users may be mentionned, however, only the first user mentionned will have the quote attributed to them.
-
-To query a quote, use the `!query` followed by a username. It may be a mention, simply a username or username with # tag. The bot will then fetch a random quote attributed to the provided username from the database and quote them in the same channel.
-
-You can store the quotes from the last 150 messages in a registered channel by using the command `!readall` in the channel.
-
-A user's quotes can be deleted from the database using the command `!purge` with a username specified.
-
-If you wish to delete your server's database, you can use the command `!deletedb`. If you remove the bot from your server, no database table will be created for it on bot startup. This command also unregisters your registered channels, therefor, the bot will stop monitoring your server.
+See the Wiki tab for general bot usage informations.
 
 ## Planned features and development
 
