@@ -50,13 +50,8 @@ def createGuildTable(guildid):
     global db_con
     with db_con as conn:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT count(name) FROM sqlite_master WHERE type='table' AND name=\'s{guildid}\'")
 
-        if cursor.fetchone()[0] == 1:
-            conn.commit()
-            return
-        
-        cursor.execute(f" CREATE TABLE s{guildid} (userid integer, quote text) ")
+        cursor.execute(f"CREATE TABLE IF NOT EXISTS s{guildid} (userid integer, quote text)")
 
         conn.commit()
 
@@ -79,7 +74,8 @@ def queryDB(guildid, userid):
         conn.commit()
         return quotes
 
-def deleteTable(guildid):
+#function to drop/delete a guild's table
+def deleteGuildTable(guildid):
     global db_con
     with db_con as conn:
         cursor = conn.cursor()
@@ -135,7 +131,7 @@ async def unregister(ctx):
 @client.command(name='readall', help="Reads and stores all quotes from the quotes channels.")
 async def readall(ctx):
     global quotesChan
-    deleteTable(ctx.guild.id)
+    deleteGuildTable(ctx.guild.id)
     createGuildTable(ctx.guild.id)
     if ctx.channel.id in quotesChan:
         async for msg in ctx.channel.history(limit=150):
@@ -143,7 +139,7 @@ async def readall(ctx):
                 quote = extractQuote(msg.content)
                 if len(quote) > 1 and len(msg.mentions) > 0:
                     pushQuoteToDB(msg.guild.id, msg.mentions[0].id, quote)
-
+    await ctx.author.send(f"Quotes from the last 150 messages from {ctx.channel.name} in {ctx.guild.name} have been read and stored")
 
 #events
 @client.event
@@ -177,9 +173,8 @@ async def on_message(message):
 try:
     db_con = sqlite3.connect(DATABASE)
     cursor = db_con.cursor()
-    cursor.execute(f"SELECT count(name) FROM sqlite_master WHERE type='table' AND name='channels'")
-    if cursor.fetchone()[0] == 0:
-        cursor.execute(f" CREATE TABLE channels (guildid integer, chanid integer) ")
+    
+    cursor.execute(f"CREATE TABLE IF NOT EXISTS channels (guildid integer, chanid integer)")
 
     db_con.commit()
     cursor = None
