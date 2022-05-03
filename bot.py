@@ -82,6 +82,14 @@ def deleteGuildTable(guildid):
         cursor.execute(f"DROP TABLE IF EXISTS s{guildid}")
         conn.commit()
 
+#function to delete quotes
+def deleteQuotes(guildid, userid):
+    global db_con
+    with db_con as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"DELETE FROM s{guildid} WHERE userid={userid}")
+        conn.commit()
+
 #query command
 @client.command(name='query', help="Gets a quote from mentionned user.")
 async def query(ctx, query:discord.Member):
@@ -97,11 +105,14 @@ async def query(ctx, query:discord.Member):
 @client.command(name='purge', help="Purges all of a user's quotes from the database.")
 @commands.has_permissions(manage_messages=True)
 async def purge(ctx, user:discord.Member):
-    global db_con
-    with db_con as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"DELETE FROM s{ctx.guild.id} WHERE userid={user.id}")
-        conn.commit()
+    deleteQuotes(ctx.guild.id, user.id)
+    await ctx.channel.send(f"{user.display_name}'s quotes have been deleted from the database.")
+
+#command that deletes a user's quotes from the database table of the guild.
+@client.command(name='deletemystuff', help="Deletes all quotes of the user from the database table.")
+async def deletemystuff(ctx):
+    deleteQuotes(ctx.guild.id, ctx.message.author.id)
+    await ctx.channel.send("Your quotes have been deleted from the database :)")
 
 #command to create a database table for the context guild.
 @client.command(name='createdb', help="Creates the database table for the guild.")
