@@ -125,22 +125,26 @@ async def createDB(ctx):
 @commands.has_permissions(manage_channels=True)
 async def register(ctx):
     global db_con
+    global quotesChan
     with db_con as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT count(chanid) FROM channels WHERE chanid={ctx.channel.id}")
         if cursor.fetchone()[0] == 0:
             cursor.execute(f"INSERT INTO channels VALUES ({ctx.guild.id},{ctx.channel.id})")
         conn.commit()
+    quotesChan = getChannelsDB()
 
 #command to unregister a quotes channel
 @client.command(name='unregister', help="Unregister the current channel from the quotes channels.")
 @commands.has_permissions(manage_channels=True)
 async def unregister(ctx):
     global db_con
+    global quotesChan
     with db_con as conn:
         cursor = conn.cursor()
         cursor.execute(f"DELETE FROM channels WHERE chanid={ctx.channel.id}")
         conn.commit()
+    quotesChan = getChannelsDB()
 
 #command to store all quotes from the quotes channel
 @client.command(name='readall', help="Reads and stores all quotes from the quotes channels.")
