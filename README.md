@@ -68,5 +68,6 @@ If you wish to delete your server's database, you can use the command `!deletedb
 * [X] Read and store the contents of past messages in registered channels
 * [X] Designate a quotes channel using a command
 * [ ] MySQL version (uncertain)
+* [ ] Make a wiki on GitHub
 
 ### Thanks to GitHub user gabrielb-l for working with me on the first version of this project!
