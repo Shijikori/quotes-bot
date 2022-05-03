@@ -107,12 +107,14 @@ async def query(ctx, query:discord.Member):
 async def purge(ctx, user:discord.Member):
     deleteQuotes(ctx.guild.id, user.id)
     await ctx.channel.send(f"{user.display_name}'s quotes have been deleted from the database.")
+    print(f"Quotes of user {user.id} have been deleted upon a moderator {ctx.message.author.id}'s request from s{ctx.guild.id}")
 
 #command that deletes a user's quotes from the database table of the guild.
 @client.command(name='deletemystuff', help="Deletes all quotes of the user from the database table.")
 async def deletemystuff(ctx):
     deleteQuotes(ctx.guild.id, ctx.message.author.id)
     await ctx.channel.send("Your quotes have been deleted from the database :)")
+    print(f"Quotes of user {ctx.message.author.id} deleted upon their request from s{ctx.guild.id}")
 
 #command to create a database table for the context guild.
 @client.command(name='createdb', help="Creates the database table for the guild.")
@@ -120,6 +122,7 @@ async def deletemystuff(ctx):
 async def createDB(ctx):
     createGuildTable(ctx.guild.id)
     await ctx.channel.send("Database created :thumbsup:")
+    print(f"Database for guild id {ctx.guild.id} has been created")
 
 #command to register the quotes channel.
 @client.command(name='register', help="Registers current channel as quotes channel for the current guild.")
@@ -135,6 +138,7 @@ async def register(ctx):
         conn.commit()
     quotesChan = getChannelsDB()
     await ctx.channel.send("Channel registered")
+    print(f"Channel id {ctx.channel.id} has been registered")
 
 #command to unregister a quotes channel
 @client.command(name='unregister', help="Unregister the current channel from the quotes channels.")
@@ -148,6 +152,7 @@ async def unregister(ctx):
         conn.commit()
     quotesChan = getChannelsDB()
     await ctx.channel.send("Channel unregistered")
+    print(f"Channel id {ctx.channel.id} has been unregistered")
 
 #command to store all quotes from the quotes channel
 @client.command(name='readall', help="Reads and stores all quotes from the quotes channels.")
@@ -156,13 +161,17 @@ async def readall(ctx):
     global quotesChan
     deleteGuildTable(ctx.guild.id)
     createGuildTable(ctx.guild.id)
+    quoteCount = 0
     if ctx.channel.id in quotesChan:
         async for msg in ctx.channel.history(limit=150):
             if msg.author != client.user:
                 quote = extractQuote(msg.content)
                 if len(quote) > 1 and len(msg.mentions) > 0:
                     pushQuoteToDB(msg.guild.id, msg.mentions[0].id, quote)
-    await ctx.author.send(f"Quotes from the last 150 messages from {ctx.channel.name} in {ctx.guild.name} have been read and stored")
+                    quoteCount += 1
+    else:
+        await ctx.channel.send("This channel has not been registered. Please register the channel using `!register` before running this command.")
+    await ctx.author.send(f"{quoteCount} quotes from {ctx.channel.name} in {ctx.guild.name} have been read and stored!")
 
 #command to delete a guild's database entries
 @client.command(name='deletedb', help="Deletes the database contents of this server. (does not create a blank table for the guild afterwards)")
@@ -175,6 +184,7 @@ async def deleteDB(ctx):
         conn.commit()
     deleteGuildTable(ctx.guild.id)
     await ctx.channel.send("Database deleted :thumbsup:")
+    print(f"Database of {ctx.guild.id} has been deleted upon {ctx.message.author.id}'s request")
 
 #events
 @client.event
@@ -184,6 +194,7 @@ async def on_ready():
     quotesChan = getChannelsDB()
     for guild in client.guilds:
         createGuildTable(guild.id)
+    print("Registered channel list and guild tables created")
 
 @client.event
 async def on_message(message):
