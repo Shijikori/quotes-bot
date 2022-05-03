@@ -104,11 +104,13 @@ async def purge(ctx, user:discord.Member):
 
 #command to create a database table for the context guild.
 @client.command(name='createdb', help="Creates the database table for the guild.")
+@commands.has_permissions(administrator=True)
 async def createDB(ctx):
     createGuildTable(ctx.guild.id)
 
 #command to register the quotes channel.
 @client.command(name='register', help="Registers current channel as quotes channel for the current guild.")
+@commands.has_permissions(manage_channels=True)
 async def register(ctx):
     global db_con
     with db_con as conn:
@@ -120,6 +122,7 @@ async def register(ctx):
 
 #command to unregister a quotes channel
 @client.command(name='unregister', help="Unregister the current channel from the quotes channels.")
+@commands.has_permissions(manage_channels=True)
 async def unregister(ctx):
     global db_con
     with db_con as conn:
@@ -129,6 +132,7 @@ async def unregister(ctx):
 
 #command to store all quotes from the quotes channel
 @client.command(name='readall', help="Reads and stores all quotes from the quotes channels.")
+@commands.has_permissions(administrator=True)
 async def readall(ctx):
     global quotesChan
     deleteGuildTable(ctx.guild.id)
@@ -143,6 +147,7 @@ async def readall(ctx):
 
 #command to delete a guild's database entries
 @client.command(name='deletedb', help="Deletes the database contents of this server. (does not create a blank table for the guild afterwards)")
+@commands.has_permissions(administrator=True)
 async def deleteDB(ctx):
     global db_con
     with db_con as conn:
