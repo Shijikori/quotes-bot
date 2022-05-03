@@ -60,7 +60,7 @@ def pushQuoteToDB(guildid, userid, quote):
     global db_con
     with db_con as conn:
         cursor = conn.cursor()
-        cursor.execute(f"INSERT INTO s{guildid} VALUES ('{userid}', '{quote}')")
+        cursor.execute(f"INSERT INTO s{guildid} VALUES ({userid}, '{quote}')")
         conn.commit()
 
 #function that queries the database for user's quotes.
@@ -99,7 +99,7 @@ async def purge(ctx, user:discord.Member):
     global db_con
     with db_con as conn:
         cursor = conn.cursor()
-        cursor.execute(f"DELETE FROM s{ctx.guild.id} WHERE userid='{user.id}'")
+        cursor.execute(f"DELETE FROM s{ctx.guild.id} WHERE userid={user.id}")
         conn.commit()
 
 #command to create a database table for the context guild.
