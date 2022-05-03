@@ -21,13 +21,15 @@ client = commands.Bot(command_prefix='!', intents=intents)
 quotesChan = None
 db_con = None
 
-#finds all channels of the name name
-def findChannels(name:str):
+#function that outputs the contents of the channels table
+def getChannelsDB():
+    global db_con
     chanlist = []
-    for guild in client.guilds:
-        for channel in guild.text_channels:
-            if channel.name == name:
-                chanlist.append(channel)
+    with db_con as conn:
+        cursor = conn.cursor()
+        for row in cursor.execute("SELECT chanid FROM channels"):
+            chanlist.append(row[0])
+        conn.commit()
     return chanlist
 
 #extracts a quote from a message containing a quote
@@ -48,13 +50,8 @@ def createGuildTable(guildid):
     global db_con
     with db_con as conn:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT count(name) FROM sqlite_master WHERE type='table' AND name=\'s{guildid}\'")
 
-        if cursor.fetchone()[0] == 1:
-            conn.commit()
-            return
-        
-        cursor.execute(f" CREATE TABLE s{guildid} (userid text, quote text) ")
+        cursor.execute(f"CREATE TABLE IF NOT EXISTS s{guildid} (userid integer, quote text)")
 
         conn.commit()
 
@@ -72,10 +69,18 @@ def queryDB(guildid, userid):
     quotes = []
     with db_con as conn:
         cursor = conn.cursor()
-        for row in cursor.execute(f"SELECT quote FROM s{guildid} WHERE userid='{userid}'"):
+        for row in cursor.execute(f"SELECT quote FROM s{guildid} WHERE userid={userid}"):
             quotes.append(row[0])
         conn.commit()
         return quotes
+
+#function to drop/delete a guild's table
+def deleteGuildTable(guildid):
+    global db_con
+    with db_con as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"DROP TABLE IF EXISTS s{guildid}")
+        conn.commit()
 
 #query command
 @client.command(name='query', help="Gets a quote from mentionned user.")
@@ -89,7 +94,7 @@ async def query(ctx, query:discord.Member):
             await ctx.send("Wise words to stand by.")
 
 #command that purges all quotes in the database that comes from specified user.
-@client.command(nome='purge', help="Purges all of a user's quotes from the database.")
+@client.command(name='purge', help="Purges all of a user's quotes from the database.")
 async def purge(ctx, user:discord.Member):
     global db_con
     with db_con as conn:
@@ -97,12 +102,61 @@ async def purge(ctx, user:discord.Member):
         cursor.execute(f"DELETE FROM s{ctx.guild.id} WHERE userid='{user.id}'")
         conn.commit()
 
+#command to create a database table for the context guild.
+@client.command(name='createdb', help="Creates the database table for the guild.")
+async def createDB(ctx):
+    createGuildTable(ctx.guild.id)
+
+#command to register the quotes channel.
+@client.command(name='register', help="Registers current channel as quotes channel for the current guild.")
+async def register(ctx):
+    global db_con
+    with db_con as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT count(chanid) FROM channels WHERE chanid={ctx.channel.id}")
+        if cursor.fetchone()[0] == 0:
+            cursor.execute(f"INSERT INTO channels VALUES ({ctx.guild.id},{ctx.channel.id})")
+        conn.commit()
+
+#command to unregister a quotes channel
+@client.command(name='unregister', help="Unregister the current channel from the quotes channels.")
+async def unregister(ctx):
+    global db_con
+    with db_con as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"DELETE FROM channels WHERE chanid={ctx.channel.id}")
+        conn.commit()
+
+#command to store all quotes from the quotes channel
+@client.command(name='readall', help="Reads and stores all quotes from the quotes channels.")
+async def readall(ctx):
+    global quotesChan
+    deleteGuildTable(ctx.guild.id)
+    createGuildTable(ctx.guild.id)
+    if ctx.channel.id in quotesChan:
+        async for msg in ctx.channel.history(limit=150):
+            if msg.author != client.user:
+                quote = extractQuote(msg.content)
+                if len(quote) > 1 and len(msg.mentions) > 0:
+                    pushQuoteToDB(msg.guild.id, msg.mentions[0].id, quote)
+    await ctx.author.send(f"Quotes from the last 150 messages from {ctx.channel.name} in {ctx.guild.name} have been read and stored")
+
+#command to delete a guild's database entries
+@client.command(name='deletedb', help="Deletes the database contents of this server. (does not create a blank table for the guild afterwards)")
+async def deleteDB(ctx):
+    global db_con
+    with db_con as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"DELETE FROM channels WHERE guildid={ctx.guild.id}")
+        conn.commit()
+    deleteGuildTable(ctx.guild.id)
+
 #events
 @client.event
 async def on_ready():
     global quotesChan
     print(f'{client.user} has connected to Discord!')
-    quotesChan = findChannels("quotes")
+    quotesChan = getChannelsDB()
     for guild in client.guilds:
         createGuildTable(guild.id)
 
@@ -113,7 +167,7 @@ async def on_message(message):
         return
 
     #if channel id is one of the quotes channels, push the quote to DB.
-    if message.channel.id == quotesChan[0].id:
+    if message.channel.id in quotesChan:
         if len(message.mentions) > 0:
             quote = extractQuote(message.content)
             if len(quote) > 1:
@@ -128,8 +182,14 @@ async def on_message(message):
 #running client with keyboard interrupt handling
 try:
     db_con = sqlite3.connect(DATABASE)
+    cursor = db_con.cursor()
+    
+    cursor.execute(f"CREATE TABLE IF NOT EXISTS channels (guildid integer, chanid integer)")
+
+    db_con.commit()
+    cursor = None
     client.run(TOKEN)
-except KeyboardInterrupt:
+finally:
     db_con.commit()
     db_con.close()
 exit(0)
