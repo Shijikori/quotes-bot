@@ -119,6 +119,7 @@ async def deletemystuff(ctx):
 @commands.has_permissions(administrator=True)
 async def createDB(ctx):
     createGuildTable(ctx.guild.id)
+    await ctx.channel.send("Database created :thumbsup:")
 
 #command to register the quotes channel.
 @client.command(name='register', help="Registers current channel as quotes channel for the current guild.")
@@ -133,6 +134,7 @@ async def register(ctx):
             cursor.execute(f"INSERT INTO channels VALUES ({ctx.guild.id},{ctx.channel.id})")
         conn.commit()
     quotesChan = getChannelsDB()
+    await ctx.channel.send("Channel registered")
 
 #command to unregister a quotes channel
 @client.command(name='unregister', help="Unregister the current channel from the quotes channels.")
@@ -145,6 +147,7 @@ async def unregister(ctx):
         cursor.execute(f"DELETE FROM channels WHERE chanid={ctx.channel.id}")
         conn.commit()
     quotesChan = getChannelsDB()
+    await ctx.channel.send("Channel unregistered")
 
 #command to store all quotes from the quotes channel
 @client.command(name='readall', help="Reads and stores all quotes from the quotes channels.")
@@ -171,6 +174,7 @@ async def deleteDB(ctx):
         cursor.execute(f"DELETE FROM channels WHERE guildid={ctx.guild.id}")
         conn.commit()
     deleteGuildTable(ctx.guild.id)
+    await ctx.channel.send("Database deleted :thumbsup:")
 
 #events
 @client.event
