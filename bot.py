@@ -186,6 +186,17 @@ async def deleteDB(ctx):
     await ctx.channel.send("Database deleted :thumbsup:")
     print(f"Database of {ctx.guild.id} has been deleted upon {ctx.message.author.id}'s request")
 
+@client.command(name='count', help="Returns the number of quotes provided user has in the server.")
+async def quote_count(ctx, user:discord.Member):
+    global db_con
+    val = 0
+    with db_con as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT count(quote) FROM s{ctx.guild.id} WHERE userid={user.id}")
+        val = cursor.fetchone()[0]
+        conn.commit()
+    await ctx.send(f"User {user} has {val} recorded quotes.")
+
 #events
 @client.event
 async def on_ready():
