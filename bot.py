@@ -17,7 +17,7 @@ intents.members = True
 intents.messages = True
 
 #globals
-client = commands.Bot(command_prefix='!', intents=intents)
+client = commands.Bot(command_prefix='q!', intents=intents)
 quotesChan = None
 db_con = None
 
