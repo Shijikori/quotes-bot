@@ -10,6 +10,7 @@ load_dotenv()
 #environment vars
 TOKEN = os.getenv('DISCORD_TOKEN')
 DATABASE = os.getenv('DB_FILE')
+VERSION = "1.2.3-devel" # version string, may be used in the future.
 
 #intents
 intents = discord.Intents.default()
