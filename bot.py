@@ -228,7 +228,7 @@ async def list_quotes(ctx, member:discord.Member=None):
     await ctx.message.author.send(f"{client.get_user(user)}'s quotes list : ")
     for quote in quotes:
         i += 1
-        message = message + f" {i}. {quote}\n"
+        message = message + f"{i}. {quote}\n"
     await ctx.message.author.send(message)
 
 #events
