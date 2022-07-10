@@ -93,6 +93,14 @@ def deleteQuotes(guildid, userid):
         cursor.execute(f"DELETE FROM s{guildid} WHERE userid={userid}")
         conn.commit()
 
+#function to delete a quote
+def deleteQuote(guildid, userid, quote):
+    global db_con
+    with db_con as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"DELETE FROM s{guildid} WHERE userid={userid} AND quote=\"{quote}\"")
+        conn.commit()
+
 #query command
 @client.command(name='query', help="Gets a quote from mentionned user.")
 async def query(ctx, query:discord.Member):
