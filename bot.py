@@ -13,6 +13,7 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 DATABASE = os.getenv('DB_FILE')
 VERSION = "1.2.4" # version string, may be used in the future.
 
+
 #intents
 intents = discord.Intents.default()
 intents.members = True
