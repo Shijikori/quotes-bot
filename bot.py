@@ -218,7 +218,7 @@ async def list_quotes(ctx, member:discord.Member=None):
         user = ctx.message.author.id
     else:
         if ctx.message.author.guild_permissions.manage_messages:
-            user = member
+            user = member.id
         else:
             await ctx.send("Insufficient privileges : permission `manage_messages` required to get the list of quotes from another user than themself.")
             return
