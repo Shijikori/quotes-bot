@@ -94,12 +94,16 @@ def deleteQuotes(guildid, userid):
 
 #query command
 @client.command(name='query', help="Gets a quote from mentionned user.")
-async def query(ctx, query:discord.Member):
+async def query(ctx, query:discord.Member, id:int=0):
     quotes = queryDB(ctx.guild.id, query.id)
     if len(quotes) == 0:
         await ctx.send(f"{query} never said anything remarkable :c")
     else:
-        await ctx.send(f"{query} once said \"{quotes[random.randrange(0, len(quotes))]}\"")
+        if id < 1:
+            id = random.randrange(0, len(quotes))
+        else:
+            id -= 1 # correct the id to fit list index.
+        await ctx.send(f"{query} once said \"{quotes[id]}\"")
         if random.randrange(0,38) == 20:
             await ctx.send("Wise words to stand by.")
 
