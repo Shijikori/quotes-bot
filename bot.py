@@ -2,6 +2,7 @@ import os
 import discord
 import sqlite3
 import random
+import typing
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -10,7 +11,8 @@ load_dotenv()
 #environment vars
 TOKEN = os.getenv('DISCORD_TOKEN')
 DATABASE = os.getenv('DB_FILE')
-VERSION = "1.2.3-devel" # version string, may be used in the future.
+VERSION = "1.2.4" # version string, may be used in the future.
+
 
 #intents
 intents = discord.Intents.default()
@@ -198,6 +200,29 @@ async def quote_count(ctx, user:discord.Member):
         val = cursor.fetchone()[0]
         conn.commit()
     await ctx.send(f"User {user} has {val} recorded quotes.")
+
+#command to get list of quotes in DMs
+@client.command(name='list', help="Returns a list of qutoes for the provided user (provide none if you want your own)")
+async def list_quotes(ctx, member:typing.Optional[discord.Member]):
+    global db_con
+    quotes = []
+    user = None
+    if member == None:
+        user = ctx.message.author.id
+    else:
+        if ctx.message.author.guild_permissions.manage_messages:
+            user = member
+        else:
+            await ctx.send("Insufficient privileges : permission `manage_messages` required to get the list of quotes from another user than themself.")
+            return
+    message = ""
+    quotes = queryDB(ctx.guild.id, user)
+    i = 0
+    await ctx.message.author.send(f"{user}'s quotes list : ")
+    for quote in quotes:
+        i += 1
+        message = message.join(f"{i}. ", quote, "\n")
+    await ctx.message.author.send(message)
 
 #events
 @client.event
