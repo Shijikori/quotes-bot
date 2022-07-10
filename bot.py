@@ -10,6 +10,7 @@ load_dotenv()
 #environment vars
 TOKEN = os.getenv('DISCORD_TOKEN')
 DATABASE = os.getenv('DB_FILE')
+VERSION = "1.2.3-devel" # version string, may be used in the future.
 
 #intents
 intents = discord.Intents.default()
@@ -17,7 +18,7 @@ intents.members = True
 intents.messages = True
 
 #globals
-client = commands.Bot(command_prefix='!', intents=intents)
+client = commands.Bot(command_prefix='q!', intents=intents)
 quotesChan = None
 db_con = None
 
@@ -185,6 +186,18 @@ async def deleteDB(ctx):
     deleteGuildTable(ctx.guild.id)
     await ctx.channel.send("Database deleted :thumbsup:")
     print(f"Database of {ctx.guild.id} has been deleted upon {ctx.message.author.id}'s request")
+
+#command to get the number of quotes a user has in the context guild
+@client.command(name='count', help="Returns the number of quotes provided user has in the server.")
+async def quote_count(ctx, user:discord.Member):
+    global db_con
+    val = 0
+    with db_con as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT count(quote) FROM s{ctx.guild.id} WHERE userid={user.id}")
+        val = cursor.fetchone()[0]
+        conn.commit()
+    await ctx.send(f"User {user} has {val} recorded quotes.")
 
 #events
 @client.event

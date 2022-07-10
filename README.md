@@ -45,11 +45,10 @@ See the Wiki tab for general bot usage informations.
 
 ## Planned features and development
 
-* [X] Remove unecessary code
 * [ ] Query quotes with keywords (with and without provided user)
 * [X] Read and store the contents of past messages in registered channels
 * [X] Designate a quotes channel using a command
 * [ ] MySQL version (uncertain)
-* [ ] Make a wiki on GitHub
+* [ ] Make a wiki on GitHub (WIP)
 
 ### Thanks to GitHub user gabrielb-l for working with me on the first version of this project!
