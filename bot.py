@@ -2,7 +2,6 @@ import os
 import discord
 import sqlite3
 import random
-import typing
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -211,7 +210,7 @@ async def quote_count(ctx, user:discord.Member):
 
 #command to get list of quotes in DMs
 @client.command(name='list', help="Returns a list of qutoes for the provided user (provide none if you want your own)")
-async def list_quotes(ctx, member:typing.Optional[discord.Member]):
+async def list_quotes(ctx, member:discord.Member=None):
     global db_con
     quotes = []
     user = None
@@ -226,7 +225,7 @@ async def list_quotes(ctx, member:typing.Optional[discord.Member]):
     message = ""
     quotes = queryDB(ctx.guild.id, user)
     i = 0
-    await ctx.message.author.send(f"{user}'s quotes list : ")
+    await ctx.message.author.send(f"{client.get_user(user)}'s quotes list : ")
     for quote in quotes:
         i += 1
         message = message + f" {i}. {quote}\n"
