@@ -247,6 +247,7 @@ async def delete_quote(ctx, user:discord.Member=None, id:int=None):
     quotes = queryDB(ctx.guild.id, user.id)
     deleteQuote(ctx.guild.id, user.id, quotes[id])
     await ctx.send(f"The quote number {id} in {user}'s list has been deleted.")
+    print(f"s{ctx.guild.id} : {ctx.author.id} deleted a quote from {user.id} from the database.")
 
 #events
 @client.event
