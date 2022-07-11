@@ -92,6 +92,14 @@ def deleteQuotes(guildid, userid):
         cursor.execute(f"DELETE FROM s{guildid} WHERE userid={userid}")
         conn.commit()
 
+#function to delete a quote
+def deleteQuote(guildid, userid, quote):
+    global db_con
+    with db_con as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"DELETE FROM s{guildid} WHERE userid={userid} AND quote=\"{quote}\"")
+        conn.commit()
+
 #query command
 @client.command(name='query', help="Gets a quote from mentionned user.")
 async def query(ctx, query:discord.Member, id:int=0):
@@ -226,6 +234,20 @@ async def list_quotes(ctx, member:discord.Member=None):
         i += 1
         message = message + f"{i}. {quote}\n"
     await ctx.message.author.send(message)
+
+# command to delete a quote
+@client.command(name='delquote', help="Delete a quote from the guild's database. (requires quote id from list command)")
+async def delete_quote(ctx, user:discord.Member=None, id:int=None):
+    if user == None:
+        user = ctx.author
+    if user != ctx.author and not ctx.message.author.guild_permissions.manage_messages:
+        await ctx.send("Insufficient privileges : guild permission `manage_messages` required to use this command for another user than themself.")
+    if id == None:
+        await ctx.send("Please indicate a quote ID.")
+        return
+    quotes = queryDB(ctx.guild.id, user.id)
+    deleteQuote(ctx.guild.id, user.id, quotes[id])
+    await ctx.send(f"The quote number {id} in {user}'s list has been deleted.")
 
 #events
 @client.event
