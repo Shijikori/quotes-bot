@@ -215,7 +215,6 @@ async def quote_count(ctx, user:discord.Member):
 #command to get list of quotes in DMs
 @client.command(name='list', help="Returns a list of qutoes for the provided user (provide none if you want your own)")
 async def list_quotes(ctx, member:discord.Member=None):
-    global db_con
     quotes = []
     user = None
     if member == None:
