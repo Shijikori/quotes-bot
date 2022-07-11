@@ -235,6 +235,20 @@ async def list_quotes(ctx, member:discord.Member=None):
         message = message + f"{i}. {quote}\n"
     await ctx.message.author.send(message)
 
+# command to delete a quote
+@client.command(name='delquote', help="Delete a quote from the guild's database. (requires quote id from list command)")
+async def delete_quote(ctx, user:discord.Member=None, id:int=None):
+    if user == None:
+        user = ctx.author
+    if user != ctx.author and not ctx.message.author.guild_permissions.manage_messages:
+        await ctx.send("Insufficient privileges : guild permission `manage_messages` required to use this command for another user than themself.")
+    if id == None:
+        await ctx.send("Please indicate a quote ID.")
+        return
+    quotes = queryDB(ctx.guild.id, user.id)
+    deleteQuote(ctx.guild.id, user.id, quotes[id])
+    await ctx.send(f"The quote number {id} in {user}'s list has been deleted.")
+
 #events
 @client.event
 async def on_ready():
