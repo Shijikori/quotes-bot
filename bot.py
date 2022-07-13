@@ -109,6 +109,9 @@ async def query(ctx, query:discord.Member, id:int=0):
     else:
         if id < 1:
             id = random.randrange(0, len(quotes))
+        elif id > len(quotes):
+            await ctx.send("This user doesn't have that many quotes.")
+            return
         else:
             id -= 1 # correct the id to fit list index.
         await ctx.send(f"{query} once said \"{quotes[id]}\"")
@@ -244,8 +247,11 @@ async def delete_quote(ctx, user:discord.Member=None, id:int=None):
     if id == None:
         await ctx.send("Please indicate a quote ID.")
         return
+    if id > len(quotes) or id == 0:
+        await ctx.send(f"There aren't that many quotes for this user.")
+        return
     quotes = queryDB(ctx.guild.id, user.id)
-    deleteQuote(ctx.guild.id, user.id, quotes[id])
+    deleteQuote(ctx.guild.id, user.id, quotes[id-1])
     await ctx.send(f"The quote number {id} in {user}'s list has been deleted.")
     print(f"s{ctx.guild.id} : {ctx.author.id} deleted a quote from {user.id} from the database.")
 
