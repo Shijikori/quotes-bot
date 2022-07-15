@@ -247,10 +247,10 @@ async def delete_quote(ctx, user:discord.Member=None, id:int=None):
     if id == None:
         await ctx.send("Please indicate a quote ID.")
         return
+    quotes = queryDB(ctx.guild.id, user.id)
     if id > len(quotes) or id == 0:
         await ctx.send(f"There aren't that many quotes for this user.")
         return
-    quotes = queryDB(ctx.guild.id, user.id)
     deleteQuote(ctx.guild.id, user.id, quotes[id-1])
     await ctx.send(f"The quote number {id} in {user}'s list has been deleted.")
     print(f"s{ctx.guild.id} : {ctx.author.id} deleted a quote from {user.id} from the database.")
