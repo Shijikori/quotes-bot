@@ -10,7 +10,8 @@ load_dotenv()
 #environment vars
 TOKEN = os.getenv('DISCORD_TOKEN')
 DATABASE = os.getenv('DB_FILE')
-VERSION = "1.2.3-devel" # version string, may be used in the future.
+VERSION = "1.2.4" # version string, may be used in the future.
+
 
 #intents
 intents = discord.Intents.default()
@@ -91,14 +92,29 @@ def deleteQuotes(guildid, userid):
         cursor.execute(f"DELETE FROM s{guildid} WHERE userid={userid}")
         conn.commit()
 
+#function to delete a quote
+def deleteQuote(guildid, userid, quote):
+    global db_con
+    with db_con as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"DELETE FROM s{guildid} WHERE userid={userid} AND quote=\"{quote}\"")
+        conn.commit()
+
 #query command
 @client.command(name='query', help="Gets a quote from mentionned user.")
-async def query(ctx, query:discord.Member):
+async def query(ctx, query:discord.Member, id:int=0):
     quotes = queryDB(ctx.guild.id, query.id)
     if len(quotes) == 0:
         await ctx.send(f"{query} never said anything remarkable :c")
     else:
-        await ctx.send(f"{query} once said \"{quotes[random.randrange(0, len(quotes))]}\"")
+        if id < 1:
+            id = random.randrange(0, len(quotes))
+        elif id > len(quotes):
+            await ctx.send("This user doesn't have that many quotes.")
+            return
+        else:
+            id -= 1 # correct the id to fit list index.
+        await ctx.send(f"{query} once said \"{quotes[id]}\"")
         if random.randrange(0,38) == 20:
             await ctx.send("Wise words to stand by.")
 
@@ -198,6 +214,46 @@ async def quote_count(ctx, user:discord.Member):
         val = cursor.fetchone()[0]
         conn.commit()
     await ctx.send(f"User {user} has {val} recorded quotes.")
+
+#command to get list of quotes in DMs
+@client.command(name='list', help="Returns a list of qutoes for the provided user (provide none if you want your own)")
+async def list_quotes(ctx, member:discord.Member=None):
+    quotes = []
+    user = None
+    if member == None:
+        user = ctx.message.author.id
+    else:
+        if ctx.message.author.guild_permissions.manage_messages:
+            user = member.id
+        else:
+            await ctx.send("Insufficient privileges : permission `manage_messages` required to get the list of quotes from another user than themself.")
+            return
+    message = ""
+    quotes = queryDB(ctx.guild.id, user)
+    i = 0
+    await ctx.message.author.send(f"{client.get_user(user)}'s quotes list : ")
+    for quote in quotes:
+        i += 1
+        message = message + f"{i}. {quote}\n"
+    await ctx.message.author.send(message)
+
+# command to delete a quote
+@client.command(name='delquote', help="Delete a quote from the guild's database. (requires quote id from list command)")
+async def delete_quote(ctx, user:discord.Member=None, id:int=None):
+    if user == None:
+        user = ctx.author
+    if user != ctx.author and not ctx.message.author.guild_permissions.manage_messages:
+        await ctx.send("Insufficient privileges : guild permission `manage_messages` required to use this command for another user than themself.")
+    if id == None:
+        await ctx.send("Please indicate a quote ID.")
+        return
+    quotes = queryDB(ctx.guild.id, user.id)
+    if id > len(quotes) or id == 0:
+        await ctx.send(f"There aren't that many quotes for this user.")
+        return
+    deleteQuote(ctx.guild.id, user.id, quotes[id-1])
+    await ctx.send(f"The quote number {id} in {user}'s list has been deleted.")
+    print(f"s{ctx.guild.id} : {ctx.author.id} deleted a quote from {user.id} from the database.")
 
 #events
 @client.event
